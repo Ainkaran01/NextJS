@@ -1,46 +1,32 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PostCard from "@/components/PostCard";
+import Post from "@/type/Post";
 
 export default function BlogPage() {
-  const mockPosts = [
-    {
-      id: 1,
-      title: "Building a Modern Web App with Next.js 14",
-      category: "Development",
-      date: "Nov 5, 2025",
-      image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f",
-      excerpt:
-        "Learn how to create a full-stack web app using Next.js 14, TypeScript, and Tailwind CSS with best practices for modern development.",
-    },
-    {
-      id: 2,
-      title: "Design Principles for a Better User Experience",
-      category: "Design",
-      date: "Oct 22, 2025",
-      image: "https://images.unsplash.com/photo-1503602642458-232111445657",
-      excerpt:
-        "Explore the key design principles that improve user experience, accessibility, and overall product satisfaction.",
-    },
-    {
-      id: 3,
-      title: "How to Optimize Your Website for SEO in 2025",
-      category: "Marketing",
-      date: "Sep 15, 2025",
-      image: "https://images.unsplash.com/photo-1508830524289-0adcbe822b40",
-      excerpt:
-        "Master the latest SEO strategies for 2025 to boost visibility, rank higher, and attract more traffic to your website.",
-    },
-    
-  ];
-
+  const [posts, setPosts] = useState<Post[]>([]);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
 
-  const categories = ["All", "Development", "Design", "Marketing", "Technology"];
+  useEffect(() => {
+    fetch(process.env.NEXT_PUBLIC_SITE_URL + "/posts")
+      .then((res) => res.json())
+      .then((res) => setPosts(res))
+      .catch((err) => console.error("Error fetching posts:", err));
+  }, []);
 
-  const filteredPosts = mockPosts.filter((post) => {
-    const matchesSearch = post.title.toLowerCase().includes(search.toLowerCase());
+  const categories = [
+    "All",
+    "Development",
+    "Design",
+    "Marketing",
+    "Technology",
+  ];
+
+  const filteredPosts = posts.filter((post) => {
+    const matchesSearch = post.title
+      .toLowerCase()
+      .includes(search.toLowerCase());
     const matchesCategory = category === "All" || post.category === category;
     return matchesSearch && matchesCategory;
   });
@@ -75,7 +61,7 @@ export default function BlogPage() {
       {filteredPosts.length > 0 ? (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredPosts.map((post) => (
-            <PostCard key={post.id} post={post} />
+            <PostCard key={post._id} post={post} />
           ))}
         </div>
       ) : (
